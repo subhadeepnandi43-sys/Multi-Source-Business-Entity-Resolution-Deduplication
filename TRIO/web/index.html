@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EntityResolver AI - Business Entity Resolution Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">EntityResolver <span class="gradient-text">Studio</span></h1>
+          <p class="brand-sub">Multi-Source Business Entity Resolution & Deduplication</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Light / Dark Theme Switcher -->
+        <div class="theme-switch-wrapper">
+          <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Light/Dark Theme" title="Switch Theme">
+            <span class="theme-icon sun-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </span>
+            <span class="theme-icon moon-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+            <span id="theme-mode-text" class="theme-mode-text">Dark</span>
+          </button>
+        </div>
+
+        <div class="status-indicator" id="system-status">
+          <span class="status-dot"></span>
+          <span class="status-text">System Ready</span>
+        </div>
+        <button id="run-pipeline-btn" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Run Full Pipeline
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    <!-- Quick Stats Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Candidate Recall</span>
+          <span class="stat-badge badge-blue">Multi-Pass</span>
+        </div>
+        <div class="stat-value" id="val-recall-display">96.8%</div>
+        <div class="stat-desc">Blocking stage coverage on validation</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Optimal F0.5 Score</span>
+          <span class="stat-badge badge-purple">Precision-Heavy</span>
+        </div>
+        <div class="stat-value gradient-text" id="val-f05-display">0.941</div>
+        <div class="stat-desc">Precision weighted 2x over recall</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Decision Threshold</span>
+          <span class="stat-badge badge-green" id="best-th-badge">&ge; 0.62</span>
+        </div>
+        <div class="stat-value" id="best-th-display">0.620</div>
+        <div class="stat-desc">Conservative threshold to minimize false merges</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Singleton Accuracy</span>
+          <span class="stat-badge badge-amber">No-Match Gate</span>
+        </div>
+        <div class="stat-value" id="val-singleton-display">100.0%</div>
+        <div class="stat-desc">Accurately retained 0-match entities</div>
+      </div>
+    </section>
+
+    <!-- Interactive Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="tab-results">Matching Results</button>
+      <button class="tab-btn" data-tab="tab-playground">Live Entity Resolver</button>
+      <button class="tab-btn" data-tab="tab-metrics">F0.5 & Diagnostics</button>
+      <button class="tab-btn" data-tab="tab-architecture">System Architecture</button>
+    </div>
+
+    <!-- Tab 1: Matching Results -->
+    <section id="tab-results" class="tab-panel active">
+      <div class="panel-card">
+        <div class="card-toolbar">
+          <div>
+            <h2 class="card-title">Test Entity Resolution Results</h2>
+            <p class="card-subtitle">Verified matching of Source 1 reference entities to Source 2 & 3 records</p>
+          </div>
+          <div class="filter-group">
+            <button class="filter-pill active" data-filter="all">All Entities (<span id="count-all">0</span>)</button>
+            <button class="filter-pill" data-filter="matched">Matched (<span id="count-matched">0</span>)</button>
+            <button class="filter-pill" data-filter="singletons">Singletons (<span id="count-singletons">0</span>)</button>
+            <button class="filter-pill" data-filter="multi">Multi-Matches (<span id="count-multi">0</span>)</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="results-table">
+            <thead>
+              <tr>
+                <th>Source 1 ID</th>
+                <th>Reference Business Name & Address</th>
+                <th>Country</th>
+                <th>Resolution Status</th>
+                <th>Matched Entity IDs</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody">
+              <tr>
+                <td colspan="5" class="empty-state">Loading matching results...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Live Entity Playground -->
+    <section id="tab-playground" class="tab-panel">
+      <div class="panel-card">
+        <h2 class="card-title">Live Entity Resolution Playground</h2>
+        <p class="card-subtitle">Test any two noisy business records in real time to inspect engineered similarity features and model prediction.</p>
+        
+        <div class="playground-grid">
+          <!-- Entity A -->
+          <div class="input-entity-card">
+            <h3 class="entity-card-title">Entity A (Source 1 Reference)</h3>
+            <div class="form-group">
+              <label>Business Name</label>
+              <input type="text" id="play-name-a" class="form-control" value="Acme Global Technologies Corporation">
+            </div>
+            <div class="form-group">
+              <label>Business Address</label>
+              <input type="text" id="play-addr-a" class="form-control" value="101 Market Street, Suite 400, San Francisco, CA 94105">
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" id="play-country-a" class="form-control" value="US">
+            </div>
+          </div>
+
+          <!-- Entity B -->
+          <div class="input-entity-card">
+            <h3 class="entity-card-title">Entity B (Noisy Record S2/S3)</h3>
+            <div class="form-group">
+              <label>Business Name</label>
+              <input type="text" id="play-name-b" class="form-control" value="Acme Global Tech Corp">
+            </div>
+            <div class="form-group">
+              <label>Business Address</label>
+              <input type="text" id="play-addr-b" class="form-control" value="101 Market St, Ste 400, San Francisco, CA">
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" id="play-country-b" class="form-control" value="US">
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <button id="compare-btn" class="btn btn-secondary">
+            Compute Features & Predict Match
+          </button>
+        </div>
+
+        <!-- Playground Output -->
+        <div id="play-output" class="playground-output" style="display:none;">
+          <div class="match-score-banner" id="match-banner">
+            <div>
+              <div class="score-title">Prediction Result: <strong id="pred-verdict">MATCH</strong></div>
+              <div class="score-sub">Match Probability: <strong id="pred-prob">0.962</strong> (Threshold: &ge; <span id="pred-th">0.62</span>)</div>
+            </div>
+            <div class="score-badge" id="pred-badge">VERIFIED MATCH</div>
+          </div>
+
+          <h4 style="margin: 20px 0 12px 0;">Engineered Feature Breakdown:</h4>
+          <div class="features-grid" id="features-display">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Metrics & Diagnostics -->
+    <section id="tab-metrics" class="tab-panel">
+      <div class="panel-card">
+        <h2 class="card-title">Precision, Recall & F0.5 Optimization</h2>
+        <p class="card-subtitle">Detailed threshold curve analysis demonstrating why conservative thresholds optimize F0.5</p>
+
+        <div class="metrics-split">
+          <div class="threshold-analysis-box">
+            <h3>Decision Threshold Slider</h3>
+            <p>Explore trade-offs between precision and recall:</p>
+            <div class="slider-container">
+              <input type="range" id="threshold-slider" min="0.30" max="0.95" step="0.01" value="0.62">
+              <span id="slider-val" class="slider-display">0.62</span>
+            </div>
+
+            <div class="cur-metrics-list">
+              <div class="metric-row">
+                <span>Precision:</span>
+                <strong id="cur-p">96.5%</strong>
+              </div>
+              <div class="metric-row">
+                <span>Recall:</span>
+                <strong id="cur-r">88.0%</strong>
+              </div>
+              <div class="metric-row">
+                <span>F0.5 Score:</span>
+                <strong class="gradient-text" id="cur-f05">0.941</strong>
+              </div>
+              <div class="metric-row">
+                <span>Status:</span>
+                <span class="badge badge-green">Optimal F0.5 Peak</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="top-features-box">
+            <h3>Top Predictive Features</h3>
+            <p>Relative feature importance learned by the gradient boosting model:</p>
+            <div id="feature-bars-container" class="feature-bars-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Architecture -->
+    <section id="tab-architecture" class="tab-panel">
+      <div class="panel-card">
+        <h2 class="card-title">System Architecture & Production Workflow</h2>
+        <p class="card-subtitle">End-to-end pipeline complying strictly with zero-external-data rules</p>
+
+        <div class="arch-flow">
+          <div class="arch-step">
+            <div class="step-num">1</div>
+            <h4>Data Ingestion</h4>
+            <p>Automatic schema discovery on <code>.tsv</code> inputs. Separates S1 (reference) from noisy S2 & S3.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+
+          <div class="arch-step">
+            <div class="step-num">2</div>
+            <h4>Preprocessing</h4>
+            <p>Unicode NFKD normalization, legal suffix standardization, address tokenization, and multi-country handling.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+
+          <div class="arch-step">
+            <div class="step-num">3</div>
+            <h4>Multi-Pass Blocking</h4>
+            <p>Union of 6 independent indexing passes (exact name, prefix, n-gram TF-IDF, postal/numerics) to guarantee &gt;95% recall.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+
+          <div class="arch-step">
+            <div class="step-num">4</div>
+            <h4>Tabular ML Model</h4>
+            <p>LightGBM / HistGradientBoosting trained on 29 pairwise similarity features with entity-level cross-validation.</p>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+
+          <div class="arch-step">
+            <div class="step-num">5</div>
+            <h4>F0.5 & Validation</h4>
+            <p>Optimizes threshold for F0.5 precision weighting. Enforces singleton gate and verifies with <code>validate_submission.py</code>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>EntityResolver Studio &bull; Business Entity Resolution Challenge &bull; Running on <strong>localhost</strong></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
